@@ -1,0 +1,166 @@
+.current-weather-card {
+  background: linear-gradient(135deg, var(--color-water-light) 0%, var(--color-bg-card) 100%);
+  border-color: var(--color-water);
+}
+
+.weather-main-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.weather-temp {
+  display: flex;
+  align-items: flex-start;
+}
+
+.temp-value {
+  font-size: 4rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--color-text-primary);
+}
+
+.temp-unit {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  color: var(--color-text-secondary);
+}
+
+.weather-condition {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background-color: rgba(255, 255, 255, 0.6);
+  padding: var(--space-3);
+  border-radius: var(--radius-lg);
+}
+
+.detail-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.detail-value {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.ag-recommendation-card {
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.ag-recommendation-card .card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.ag-rec-text {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--color-primary-dark);
+}
+
+.forecast-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.forecast-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.forecast-item:last-child {
+  border-bottom: none;
+}
+
+.forecast-day {
+  font-weight: 500;
+  width: 80px;
+}
+
+.forecast-condition {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100px;
+}
+
+.forecast-rain-prob {
+  font-size: 0.875rem;
+  color: var(--color-water);
+  font-weight: 500;
+}
+
+.forecast-temp {
+  font-weight: 600;
+  width: 60px;
+  text-align: right;
+}
+
+.irrigation-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.irrigation-item {
+  background-color: var(--color-bg-main);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--color-border);
+}
+
+.irrigation-item:nth-child(1) { border-left-color: var(--color-warning); }
+.irrigation-item:nth-child(2) { border-left-color: var(--color-critical); }
+.irrigation-item:nth-child(3) { border-left-color: var(--color-primary); }
+
+.irrigation-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-2);
+}
+
+.irrigation-day {
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.5px;
+}
+
+.irrigation-reason {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0;
+}
+
+@media (max-width: 1024px) {
+  .col-span-2 {
+    grid-column: span 1;
+  }
+}

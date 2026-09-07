@@ -1,0 +1,159 @@
+.recommendation-card {
+  background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-bg-card) 100%);
+  border-left: 4px solid var(--color-primary);
+}
+
+.recommendation-text {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  line-height: 1.6;
+}
+
+.guidance-alert-item {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-3);
+  border-left: 4px solid transparent;
+}
+
+.guidance-alert-item h4 {
+  font-size: 0.875rem;
+  margin-bottom: 0;
+}
+
+.guidance-alert-item p {
+  font-size: 0.875rem;
+  margin-bottom: 0;
+  color: var(--color-text-secondary);
+  margin-top: var(--space-1);
+}
+
+.lifecycle-stepper {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  margin: var(--space-6) 0;
+  padding: 0 var(--space-4);
+}
+
+.step-line {
+  position: absolute;
+  top: 15px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--color-border);
+  z-index: 0;
+}
+
+.step-line-active {
+  position: absolute;
+  top: 15px;
+  left: 0;
+  height: 2px;
+  background-color: var(--color-primary);
+  z-index: 1;
+  transition: width 0.5s ease;
+}
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  gap: var(--space-2);
+}
+
+.step-marker {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: var(--color-bg-main);
+  border: 2px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  transition: all 0.3s;
+}
+
+.step-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  text-align: center;
+  max-width: 80px;
+}
+
+.step-item.completed .step-marker {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+.step-item.current .step-marker {
+  background-color: var(--color-primary-light);
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+  transform: scale(1.1);
+}
+
+.step-item.current .step-label {
+  color: var(--color-primary-dark);
+  font-weight: 700;
+}
+
+.action-checklist {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.action-checklist li {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  font-size: 0.9375rem;
+  color: var(--color-text-primary);
+}
+
+.checklist-box {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--color-border);
+  border-radius: 4px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.checklist-box:hover {
+  border-color: var(--color-primary);
+}
+
+@media (max-width: 768px) {
+  .lifecycle-stepper {
+    flex-direction: column;
+    gap: var(--space-4);
+    align-items: flex-start;
+  }
+  
+  .step-item {
+    flex-direction: row;
+  }
+  
+  .step-label {
+    text-align: left;
+    max-width: none;
+  }
+  
+  .step-line, .step-line-active {
+    display: none;
+  }
+}

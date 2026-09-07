@@ -1,0 +1,67 @@
+.filter-card {
+  padding: var(--space-4) var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.filters-container {
+  display: flex;
+  gap: var(--space-6);
+}
+
+.market-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.market-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.trend-badge {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.market-price-main {
+  display: flex;
+  flex-direction: column;
+}
+
+.price-range {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1.2;
+}
+
+.price-unit {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.market-meta {
+  border-top: 1px solid var(--color-border-light);
+  padding-top: var(--space-3);
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 768px) {
+  .filters-container {
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+}

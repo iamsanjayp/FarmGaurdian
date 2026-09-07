@@ -1,0 +1,73 @@
+.economics-form-card {
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 180px);
+}
+
+.form-scroll-area {
+  overflow-y: auto;
+  padding-right: var(--space-2);
+}
+
+.form-section h4 {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.summary-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-6);
+}
+
+.summary-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  letter-spacing: 0.5px;
+  margin-bottom: var(--space-1);
+}
+
+.summary-value {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.summary-sub {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  margin-top: var(--space-2);
+}
+
+.text-primary-dark {
+  color: var(--color-primary-dark);
+}
+
+.profit-value {
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1.1;
+  display: block;
+}
+
+.margin-value {
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1.1;
+  display: block;
+}
+
+@media (max-width: 1024px) {
+  .economics-form-card {
+    max-height: none;
+  }
+}
