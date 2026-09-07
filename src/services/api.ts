@@ -68,36 +68,56 @@ export const predictYield = async (_data: any) => {
   };
 };
 
-export const analyzeCropImage = async (_imageFile: File | null) => {
-  await delay(2000); // Simulate ML inference delay
-  return {
-    detected: 'Early Blight',
-    confidence: 87,
-    riskLevel: 'HIGH',
-    symptoms: [
-      'Dark lesions',
-      'Leaf discoloration',
-      'Spreading spots'
-    ],
-    visualAnalysis: [
-      { label: 'Early Blight', value: 87 },
-      { label: 'Healthy', value: 8 },
-      { label: 'Late Blight', value: 5 }
-    ],
-    riskFactors: [
-      'Visual symptoms',
-      'High humidity',
-      'Recent rainfall',
-      'Crop stage',
-      'Historical disease activity'
-    ],
-    recommendations: [
-      'Inspect nearby plants.',
-      'Remove severely affected leaves.',
-      'Check soil nutrient levels.',
-      'Follow appropriate IPM guidance.'
-    ]
-  };
+export const analyzeCropImage = async (imageFile: File | null) => {
+  if (!imageFile) return null;
+  
+  const formData = new FormData();
+  formData.append('file', imageFile);
+
+  try {
+    const response = await fetch('http://localhost:8000/predict', {
+      method: 'POST',
+      body: formData,
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Error: ${response.statusText}`);
+    }
+    
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Failed to analyze image with backend, falling back to mock:", error);
+    await delay(1000);
+    return {
+      detected: 'Early Blight (Mock)',
+      confidence: 87,
+      riskLevel: 'HIGH',
+      symptoms: [
+        'Dark lesions',
+        'Leaf discoloration',
+        'Spreading spots'
+      ],
+      visualAnalysis: [
+        { label: 'Early Blight', value: 87 },
+        { label: 'Healthy', value: 8 },
+        { label: 'Late Blight', value: 5 }
+      ],
+      riskFactors: [
+        'Visual symptoms',
+        'High humidity',
+        'Recent rainfall',
+        'Crop stage',
+        'Historical disease activity'
+      ],
+      recommendations: [
+        'Inspect nearby plants.',
+        'Remove severely affected leaves.',
+        'Check soil nutrient levels.',
+        'Follow appropriate IPM guidance.'
+      ]
+    };
+  }
 };
 
 export const askAgriBot = async (message: string) => {

@@ -8,13 +8,30 @@ export const PestDisease = () => {
   const [analyzing, setAnalyzing] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [imageUploaded, setImageUploaded] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  const handleUpload = async () => {
-    setImageUploaded(true);
-    setAnalyzing(true);
-    const res = await analyzeCropImage(null);
-    setResult(res);
-    setAnalyzing(false);
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setPreviewUrl(URL.createObjectURL(file));
+      setImageUploaded(true);
+      
+      setAnalyzing(true);
+      try {
+        const res = await analyzeCropImage(file);
+        setResult(res);
+      } catch (error) {
+        console.error("Error analyzing image:", error);
+      } finally {
+        setAnalyzing(false);
+      }
+    }
+  };
+
+  const resetUpload = () => {
+    setImageUploaded(false);
+    setResult(null);
+    setPreviewUrl(null);
   };
 
   return (
@@ -35,24 +52,29 @@ export const PestDisease = () => {
                 </div>
                 <h3>Upload Crop Image</h3>
                 <p>Drag and drop or choose a file</p>
-                <div className="upload-actions mt-6">
-                  <button className="btn btn-primary" onClick={handleUpload}>
+                <div className="upload-actions mt-6 flex justify-center gap-4">
+                  <label className="btn btn-primary cursor-pointer flex items-center gap-2">
                     <Upload size={18} /> Upload Image
-                  </button>
-                  <button className="btn btn-outline" onClick={handleUpload}>
+                    <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+                  </label>
+                  <label className="btn btn-outline cursor-pointer flex items-center gap-2">
                     <Camera size={18} /> Use Camera
-                  </button>
+                    <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleFileChange} />
+                  </label>
                 </div>
               </div>
             ) : (
               <div className="image-preview-container">
-                {/* Mock image placeholder (using a CSS gradient for mock) */}
-                <div className="mock-leaf-image">
-                  <div className="disease-spot spot-1"></div>
-                  <div className="disease-spot spot-2"></div>
-                </div>
-                <div className="image-overlay-actions">
-                  <button className="btn btn-outline btn-sm" onClick={() => {setImageUploaded(false); setResult(null);}}>
+                {previewUrl ? (
+                  <img src={previewUrl} alt="Crop Preview" className="w-full h-auto rounded-lg object-cover max-h-64" />
+                ) : (
+                  <div className="mock-leaf-image">
+                    <div className="disease-spot spot-1"></div>
+                    <div className="disease-spot spot-2"></div>
+                  </div>
+                )}
+                <div className="image-overlay-actions absolute bottom-4 right-4">
+                  <button className="btn btn-outline btn-sm bg-white" onClick={resetUpload}>
                     Retake
                   </button>
                 </div>
