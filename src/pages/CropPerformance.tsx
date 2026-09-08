@@ -3,12 +3,16 @@ import { Header } from '../components/Header';
 import { getCropPerformanceData } from '../services/api';
 import { BarChart2, TrendingUp, TrendingDown, Award, Zap } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
+import { useLanguage } from '../i18n/LanguageContext';
 import './CropPerformance.css';
 
 export const CropPerformance = () => {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [crop, setCrop] = useState('Rice');
+
+  const { language, t } = useLanguage();
+  const isMr = language === 'mr';
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,24 +25,26 @@ export const CropPerformance = () => {
   }, [crop]);
 
   if (loading) {
-    return <div className="loading-state">Loading performance data...</div>;
+    return <div className="loading-state">{t('common.loading')}</div>;
   }
+
+  const cropDisplayName = isMr ? (crop === 'Rice' ? t('crops.rice') : crop === 'Wheat' ? t('crops.wheat') : crop === 'Cotton' ? t('crops.cotton') : t('crops.sugarcane')) : crop;
 
   return (
     <div className="crop-performance-page">
       <Header 
-        title="Crop Performance" 
-        description="Analyze historical yield trends and future forecasts."
+        title={t('cropPerformance.title')} 
+        description={t('cropPerformance.description')}
       />
 
       <div className="filter-bar mb-6">
         <div className="form-group inline-form-group">
-          <label>Select Crop</label>
+          <label>{t('cropPerformance.selectCrop')}</label>
           <select value={crop} onChange={e => setCrop(e.target.value)}>
-            <option>Rice</option>
-            <option>Wheat</option>
-            <option>Cotton</option>
-            <option>Sugarcane</option>
+            <option value="Rice">{isMr ? t('crops.rice') : 'Rice'}</option>
+            <option value="Wheat">{isMr ? t('crops.wheat') : 'Wheat'}</option>
+            <option value="Cotton">{isMr ? t('crops.cotton') : 'Cotton'}</option>
+            <option value="Sugarcane">{isMr ? t('crops.sugarcane') : 'Sugarcane'}</option>
           </select>
         </div>
       </div>
@@ -49,8 +55,8 @@ export const CropPerformance = () => {
             <TrendingUp size={24} />
           </div>
           <div className="stat-info">
-            <span className="stat-label">Average Growth</span>
-            <span className="stat-value">+2.47% / yr</span>
+            <span className="stat-label">{t('cropPerformance.avgGrowth')}</span>
+            <span className="stat-value">+2.47% {isMr ? '/ वर्ष' : '/ yr'}</span>
           </div>
         </div>
 
@@ -59,8 +65,8 @@ export const CropPerformance = () => {
             <Award size={24} />
           </div>
           <div className="stat-info">
-            <span className="stat-label">Best Year</span>
-            <span className="stat-value">2024 (3,050 kg)</span>
+            <span className="stat-label">{isMr ? 'सर्वोत्तम वर्ष' : 'Best Year'}</span>
+            <span className="stat-value">2024 (3,050 {isMr ? 'किलो' : 'kg'})</span>
           </div>
         </div>
 
@@ -69,8 +75,8 @@ export const CropPerformance = () => {
             <TrendingDown size={24} />
           </div>
           <div className="stat-info">
-            <span className="stat-label">Worst Year</span>
-            <span className="stat-value">2015 (2,450 kg)</span>
+            <span className="stat-label">{isMr ? 'कमी उत्पादनाचे वर्ष' : 'Worst Year'}</span>
+            <span className="stat-value">2015 (2,450 {isMr ? 'किलो' : 'kg'})</span>
           </div>
         </div>
 
@@ -79,8 +85,8 @@ export const CropPerformance = () => {
             <BarChart2 size={24} />
           </div>
           <div className="stat-info">
-            <span className="stat-label">Data Points</span>
-            <span className="stat-value">10 Years</span>
+            <span className="stat-label">{isMr ? 'डेटा कालावधी' : 'Data Points'}</span>
+            <span className="stat-value">{isMr ? '१० वर्षे' : '10 Years'}</span>
           </div>
         </div>
       </div>
@@ -88,7 +94,7 @@ export const CropPerformance = () => {
       <div className="grid grid-cols-3 gap-6 mt-6 mobile-col-1">
         <div className="card col-span-2">
           <div className="flex justify-between items-center mb-4">
-            <h3>10-Year Yield Trend (kg/ha)</h3>
+            <h3>{isMr ? '१० वर्षांचा उत्पादन कल (किलो/हेक्टर)' : '10-Year Yield Trend (kg/ha)'}</h3>
             <span className="badge badge-water">2015 → 2024</span>
           </div>
           <div className="chart-container" style={{ height: 300 }}>
@@ -116,19 +122,19 @@ export const CropPerformance = () => {
 
         <div className="flex flex-col gap-6">
           <div className="card forecast-card">
-            <h3>Future Yield Forecast</h3>
+            <h3>{isMr ? 'भविष्यातील उत्पादन अंदाज' : 'Future Yield Forecast'}</h3>
             <div className="forecast-items mt-4">
               <div className="forecast-item">
-                <span className="forecast-label">Next Year</span>
-                <span className="forecast-value text-primary">3,125 kg/ha</span>
+                <span className="forecast-label">{isMr ? 'पुढील वर्ष' : 'Next Year'}</span>
+                <span className="forecast-value text-primary">3,125 {isMr ? 'किलो/हेक्टर' : 'kg/ha'}</span>
               </div>
               <div className="forecast-item">
-                <span className="forecast-label">In 3 Years</span>
-                <span className="forecast-value text-primary">3,282 kg/ha</span>
+                <span className="forecast-label">{isMr ? '३ वर्षांनंतर' : 'In 3 Years'}</span>
+                <span className="forecast-value text-primary">3,282 {isMr ? 'किलो/हेक्टर' : 'kg/ha'}</span>
               </div>
               <div className="forecast-item">
-                <span className="forecast-label">In 5 Years</span>
-                <span className="forecast-value text-primary">3,446 kg/ha</span>
+                <span className="forecast-label">{isMr ? '५ वर्षांनंतर' : 'In 5 Years'}</span>
+                <span className="forecast-value text-primary">3,446 {isMr ? 'किलो/हेक्टर' : 'kg/ha'}</span>
               </div>
             </div>
           </div>
@@ -136,10 +142,12 @@ export const CropPerformance = () => {
           <div className="card ai-recommendation-card">
             <div className="card-header mb-2">
               <Zap className="text-ai" size={20} />
-              <h3>AI Recommendation</h3>
+              <h3>{isMr ? 'AI कृषी सल्ला' : 'AI Recommendation'}</h3>
             </div>
             <p className="mb-0 text-ai-dark">
-              "{crop} shows stable historical growth and is recommended for the next season. The expected yield trend continues upward."
+              {isMr 
+                ? `"${cropDisplayName} पिकात मागील काही वर्षांत स्थिर वाढ दिसून आली असून आगामी हंगामात लागवडीसाठी हे अनुकूल आहे."`
+                : `"${crop} shows stable historical growth and is recommended for the next season. The expected yield trend continues upward."`}
             </p>
           </div>
         </div>
@@ -147,3 +155,4 @@ export const CropPerformance = () => {
     </div>
   );
 };
+

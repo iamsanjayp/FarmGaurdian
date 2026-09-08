@@ -1,17 +1,18 @@
 import { useState } from 'react';
 import { Header } from '../components/Header';
 import { User, Globe, Bell, Mic, Sparkles, Server } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
 import './Settings.css';
 
 export const Settings = () => {
-  const [profile, setProfile] = useState({
-    name: 'Guest Farmer',
-    farmName: 'Sathyamangalam Farm',
-    location: 'Sathyamangalam, Tamil Nadu',
-    farmArea: '5 acres'
-  });
+  const { language, setLanguage, t } = useLanguage();
 
-  const [language, setLanguage] = useState('English');
+  const [profile, setProfile] = useState({
+    name: language === 'mr' ? 'अतिथी शेतकरी' : 'Guest Farmer',
+    farmName: language === 'mr' ? 'सत्यमंगलम फार्म' : 'Sathyamangalam Farm',
+    location: language === 'mr' ? 'सत्यमंगलम, महाराष्ट्र' : 'Sathyamangalam, Tamil Nadu',
+    farmArea: language === 'mr' ? '५ एकर' : '5 acres'
+  });
 
   const [notifications, setNotifications] = useState({
     pest: true,
@@ -25,7 +26,7 @@ export const Settings = () => {
     assistant: true,
     tts: true,
     speed: 'Normal',
-    language: 'English'
+    language: language === 'mr' ? 'Marathi' : 'English'
   });
 
   const [ai, setAi] = useState({
@@ -38,11 +39,27 @@ export const Settings = () => {
     setter((prev: any) => ({ ...prev, [key]: val }));
   };
 
+  const handleLangChange = (val: string) => {
+    if (val === 'Marathi' || val === 'mr') {
+      setLanguage('mr');
+    } else {
+      setLanguage('en');
+    }
+  };
+
+  const notificationLabels: Record<string, string> = {
+    pest: t('settings.pestAlerts'),
+    weather: t('settings.weatherAlerts'),
+    irrigation: t('settings.irrigationAlerts'),
+    fertilizer: t('settings.fertilizerAlerts'),
+    market: t('settings.marketAlerts'),
+  };
+
   return (
     <div className="settings-page">
       <Header 
-        title="Settings" 
-        description="Manage your profile, preferences, and connections."
+        title={t('settings.title')} 
+        description={t('settings.description')}
       />
 
       <div className="settings-grid">
@@ -50,55 +67,57 @@ export const Settings = () => {
         <div className="card settings-section">
           <div className="section-header">
             <User className="text-primary" size={20} />
-            <h3>Profile</h3>
+            <h3>{t('settings.profile')}</h3>
           </div>
           <div className="form-group">
-            <label>Name</label>
+            <label>{t('settings.name')}</label>
             <input type="text" value={profile.name} onChange={e => setProfile({...profile, name: e.target.value})} />
           </div>
           <div className="form-group">
-            <label>Farm Name</label>
+            <label>{t('settings.farmName')}</label>
             <input type="text" value={profile.farmName} onChange={e => setProfile({...profile, farmName: e.target.value})} />
           </div>
           <div className="form-group">
-            <label>Location</label>
+            <label>{t('settings.location')}</label>
             <input type="text" value={profile.location} onChange={e => setProfile({...profile, location: e.target.value})} />
           </div>
           <div className="form-group">
-            <label>Farm Area</label>
+            <label>{t('settings.farmArea')}</label>
             <input type="text" value={profile.farmArea} onChange={e => setProfile({...profile, farmArea: e.target.value})} />
           </div>
-          <button className="btn btn-primary mt-2">Save Profile</button>
+          <button className="btn btn-primary mt-2">{t('settings.saveProfile')}</button>
         </div>
 
         {/* Language */}
         <div className="card settings-section">
           <div className="section-header">
             <Globe className="text-primary" size={20} />
-            <h3>Language</h3>
+            <h3>{t('settings.language')}</h3>
           </div>
           <div className="form-group">
-            <label>App Language</label>
-            <select value={language} onChange={e => setLanguage(e.target.value)}>
-              <option>English</option>
-              <option>Tamil</option>
-              <option>Hindi</option>
-              <option>Marathi</option>
+            <label>{t('settings.appLanguage')}</label>
+            <select 
+              value={language === 'mr' ? 'Marathi' : 'English'} 
+              onChange={e => handleLangChange(e.target.value)}
+              style={{ fontWeight: 600 }}
+            >
+              <option value="Marathi">मराठी (Marathi)</option>
+              <option value="English">English (English)</option>
             </select>
           </div>
-          <p className="text-sm text-text-secondary mt-2">Note: Multilingual support ensures accessibility for diverse regions.</p>
+          <p className="text-sm text-text-secondary mt-2">{t('settings.langNote')}</p>
         </div>
 
         {/* Notifications */}
         <div className="card settings-section">
           <div className="section-header">
             <Bell className="text-primary" size={20} />
-            <h3>Notifications</h3>
+            <h3>{t('settings.notifications')}</h3>
           </div>
           <div className="toggle-list">
             {Object.entries(notifications).map(([key, val]) => (
               <div key={key} className="toggle-item">
-                <span className="capitalize">{key} Alerts</span>
+                <span>{notificationLabels[key] || `${key} Alerts`}</span>
                 <label className="switch">
                   <input type="checkbox" checked={val} onChange={(e) => handleToggle(setNotifications, key, e.target.checked)} />
                   <span className="slider round"></span>
@@ -112,18 +131,18 @@ export const Settings = () => {
         <div className="card settings-section">
           <div className="section-header">
             <Mic className="text-primary" size={20} />
-            <h3>Voice Assistant</h3>
+            <h3>{t('settings.voiceAssistant')}</h3>
           </div>
           <div className="toggle-list mb-4">
             <div className="toggle-item">
-              <span>Enable Voice Assistant</span>
+              <span>{t('settings.enableVoice')}</span>
               <label className="switch">
                 <input type="checkbox" checked={voice.assistant} onChange={(e) => handleToggle(setVoice, 'assistant', e.target.checked)} />
                 <span className="slider round"></span>
               </label>
             </div>
             <div className="toggle-item">
-              <span>Text-to-Speech Output</span>
+              <span>{t('settings.ttsOutput')}</span>
               <label className="switch">
                 <input type="checkbox" checked={voice.tts} onChange={(e) => handleToggle(setVoice, 'tts', e.target.checked)} />
                 <span className="slider round"></span>
@@ -131,11 +150,11 @@ export const Settings = () => {
             </div>
           </div>
           <div className="form-group">
-            <label>Speech Speed</label>
+            <label>{t('settings.speechSpeed')}</label>
             <select value={voice.speed} onChange={e => setVoice({...voice, speed: e.target.value})}>
-              <option>Slow</option>
-              <option>Normal</option>
-              <option>Fast</option>
+              <option value="Slow">{t('settings.slow')}</option>
+              <option value="Normal">{t('settings.normal')}</option>
+              <option value="Fast">{t('settings.fast')}</option>
             </select>
           </div>
         </div>
@@ -144,25 +163,25 @@ export const Settings = () => {
         <div className="card settings-section">
           <div className="section-header">
             <Sparkles className="text-ai" size={20} />
-            <h3>AI Settings</h3>
+            <h3>{t('settings.aiSettings')}</h3>
           </div>
           <div className="toggle-list">
             <div className="toggle-item">
-              <span>AI Recommendations</span>
+              <span>{t('settings.aiRecs')}</span>
               <label className="switch">
                 <input type="checkbox" checked={ai.recommendations} onChange={(e) => handleToggle(setAi, 'recommendations', e.target.checked)} />
                 <span className="slider round"></span>
               </label>
             </div>
             <div className="toggle-item">
-              <span>Risk Alerts (Proactive)</span>
+              <span>{t('settings.riskAlerts')}</span>
               <label className="switch">
                 <input type="checkbox" checked={ai.risk} onChange={(e) => handleToggle(setAi, 'risk', e.target.checked)} />
                 <span className="slider round"></span>
               </label>
             </div>
             <div className="toggle-item">
-              <span>Personalized Advice</span>
+              <span>{t('settings.personalizedAdvice')}</span>
               <label className="switch">
                 <input type="checkbox" checked={ai.personalized} onChange={(e) => handleToggle(setAi, 'personalized', e.target.checked)} />
                 <span className="slider round"></span>
@@ -175,29 +194,29 @@ export const Settings = () => {
         <div className="card settings-section">
           <div className="section-header">
             <Server className="text-primary" size={20} />
-            <h3>Device Connections</h3>
+            <h3>{t('settings.deviceConnections')}</h3>
           </div>
           <div className="connection-list">
             <div className="connection-item">
               <div>
-                <h4>IoT Sensors (ESP32)</h4>
-                <span className="text-xs text-text-secondary">Last Sync: Just now</span>
+                <h4>{t('settings.iotSensors')}</h4>
+                <span className="text-xs text-text-secondary">{t('settings.lastSync')}</span>
               </div>
-              <span className="badge badge-healthy">Connected</span>
+              <span className="badge badge-healthy">{t('common.connected')}</span>
             </div>
             <div className="connection-item">
               <div>
-                <h4>Autonomous Farm Robot</h4>
-                <span className="text-xs text-text-secondary">Status: Active in Zone B</span>
+                <h4>{t('settings.autonomousRobot')}</h4>
+                <span className="text-xs text-text-secondary">{t('settings.robotZoneStatus')}</span>
               </div>
-              <span className="badge badge-healthy">Connected</span>
+              <span className="badge badge-healthy">{t('common.connected')}</span>
             </div>
             <div className="connection-item">
               <div>
-                <h4>Weather API</h4>
-                <span className="text-xs text-text-secondary">Source: Mock Data</span>
+                <h4>{t('settings.weatherApi')}</h4>
+                <span className="text-xs text-text-secondary">{t('settings.mockDataSource')}</span>
               </div>
-              <span className="badge badge-healthy">Active</span>
+              <span className="badge badge-healthy">{t('common.active')}</span>
             </div>
           </div>
         </div>
@@ -206,3 +225,4 @@ export const Settings = () => {
     </div>
   );
 };
+
