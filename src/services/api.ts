@@ -9,6 +9,9 @@ import {
   cropPerformanceData 
 } from '../data/mockData';
 
+// API Configuration
+export const API_BASE_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:8000';
+
 // Simulate API delay
 const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -48,7 +51,6 @@ export const getMarketData = async (cropFilter?: string, _stateFilter?: string) 
   if (cropFilter && cropFilter !== 'All') {
     data = data.filter(d => d.crop.toLowerCase() === cropFilter.toLowerCase());
   }
-  // State filter is mocked out as all our mock data is generally for Tamil Nadu / All India
   return data;
 };
 
@@ -68,6 +70,17 @@ export const predictYield = async (_data: any) => {
   };
 };
 
+export const checkBackendHealth = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/health`, { method: 'GET' });
+    if (!response.ok) return { online: false, error: response.statusText };
+    const data = await response.json();
+    return { online: true, ...data };
+  } catch (err: any) {
+    return { online: false, error: err.message };
+  }
+};
+
 export const analyzeCropImage = async (imageFile: File | null) => {
   if (!imageFile) return null;
   
@@ -75,13 +88,13 @@ export const analyzeCropImage = async (imageFile: File | null) => {
   formData.append('file', imageFile);
 
   try {
-    const response = await fetch('http://localhost:8000/predict', {
+    const response = await fetch(`${API_BASE_URL}/predict`, {
       method: 'POST',
       body: formData,
     });
     
     if (!response.ok) {
-      throw new Error(`Error: ${response.statusText}`);
+      throw new Error(`Server returned HTTP ${response.status}: ${response.statusText}`);
     }
     
     const data = await response.json();
@@ -90,31 +103,33 @@ export const analyzeCropImage = async (imageFile: File | null) => {
     console.error("Failed to analyze image with backend, falling back to mock:", error);
     await delay(1000);
     return {
-      detected: 'Early Blight (Mock)',
-      confidence: 87,
+      detected: 'Tomato — Early Blight (Mock)',
+      detected_raw: 'Tomato___Early_blight',
+      plant: 'Tomato',
+      disease: 'Early Blight',
+      is_healthy: false,
+      confidence: 87.5,
       riskLevel: 'HIGH',
       symptoms: [
-        'Dark lesions',
-        'Leaf discoloration',
-        'Spreading spots'
+        'Dark concentric circular lesions (bullseye pattern) on older leaves',
+        'Leaf tissue surrounding spots turns yellow',
+        'Premature defoliation starting from lower foliage'
       ],
       visualAnalysis: [
-        { label: 'Early Blight', value: 87 },
-        { label: 'Healthy', value: 8 },
-        { label: 'Late Blight', value: 5 }
+        { label: 'Tomato — Early Blight', value: 87.5, is_healthy: false },
+        { label: 'Tomato — Healthy', value: 8.0, is_healthy: true },
+        { label: 'Tomato — Late Blight', value: 4.5, is_healthy: false }
       ],
       riskFactors: [
-        'Visual symptoms',
-        'High humidity',
-        'Recent rainfall',
-        'Crop stage',
-        'Historical disease activity'
+        'Warm temperatures (24–29°C)',
+        'Alternating wet and dry periods',
+        'Soil splash carrying fungal spores onto lower leaves'
       ],
       recommendations: [
-        'Inspect nearby plants.',
-        'Remove severely affected leaves.',
-        'Check soil nutrient levels.',
-        'Follow appropriate IPM guidance.'
+        'Prune lower 12 inches of foliage to eliminate soil-splash spore entry.',
+        'Apply chlorothalonil or copper-based fungicides.',
+        'Mulch heavily with straw or plastic to create a physical barrier over soil spores.',
+        'Water strictly at root level using drip irrigation.'
       ]
     };
   }
@@ -165,4 +180,3 @@ export const askAgriBot = async (message: string, lang: string = 'mr') => {
     ? "मी आपला कृषीबॉट सहाय्यक आहे. मी आपल्याला पीक सल्ला, कीड नियंत्रण, खत व्यवस्थापन आणि हवामान माहितीबाबत अचूक मार्गदर्शन करू शकेन. आपल्याला आणखी कोणत्या विषयावर माहिती हवी आहे?"
     : "I understand. As your AI farming companion, I can help you with crop recommendations, pest control, and interpreting your farm data. Could you provide more specific details?";
 };
-

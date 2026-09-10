@@ -1,3 +1,26 @@
+/* Pest & Disease Styling with support for real AI predictions */
+
+.ai-status-bar {
+  background-color: var(--color-surface, #ffffff);
+  border-color: var(--color-border, #e2e8f0);
+}
+
+.text-healthy {
+  color: var(--color-primary, #16a34a);
+}
+
+.bg-healthy {
+  background-color: var(--color-primary, #16a34a);
+}
+
+.bg-healthy-light {
+  background-color: #dcfce7;
+}
+
+.bg-warning-light {
+  background-color: #fef3c7;
+}
+
 .upload-placeholder {
   display: flex;
   flex-direction: column;
@@ -8,7 +31,7 @@
 .upload-icon-circle {
   width: 80px;
   height: 80px;
-  background-color: var(--color-primary-light);
+  background-color: var(--color-primary-light, #dcfce7);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -24,15 +47,25 @@
 .image-preview-container {
   position: relative;
   width: 100%;
-  height: 350px;
-  border-radius: var(--radius-lg);
+  min-height: 280px;
+  border-radius: var(--radius-lg, 8px);
   overflow: hidden;
   background-color: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.image-preview-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: #0f172a;
 }
 
 .mock-leaf-image {
   width: 100%;
-  height: 100%;
+  height: 280px;
   background: linear-gradient(135deg, #4ade80 0%, #16a34a 100%);
   position: relative;
 }
@@ -75,8 +108,8 @@
 .spinner {
   width: 40px;
   height: 40px;
-  border: 4px solid var(--color-border);
-  border-top-color: var(--color-primary);
+  border: 4px solid var(--color-border, #e2e8f0);
+  border-top-color: var(--color-primary, #16a34a);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -86,8 +119,8 @@
 }
 
 .disclaimer-card {
-  background-color: var(--color-primary-light);
-  border-color: var(--color-primary);
+  background-color: var(--color-primary-light, #dcfce7);
+  border-color: var(--color-primary, #16a34a);
   display: flex;
   align-items: flex-start;
   gap: var(--space-3);
@@ -96,39 +129,56 @@
 .disclaimer-card p {
   margin-bottom: 0;
   font-size: 0.875rem;
-  color: var(--color-primary-dark);
+  color: var(--color-primary-dark, #15803d);
 }
 
 .main-result-card {
-  border-top: 4px solid var(--color-critical);
+  border-top: 4px solid var(--color-critical, #dc2626);
+  transition: all 0.3s ease;
+}
+
+.main-result-card.result-healthy {
+  border-top-color: var(--color-primary, #16a34a);
+}
+
+.main-result-card.result-diseased {
+  border-top-color: var(--color-critical, #dc2626);
 }
 
 .result-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
+  gap: var(--space-4);
 }
 
 .result-label {
   font-size: 0.75rem;
   font-weight: 600;
-  color: var(--color-text-secondary);
+  color: var(--color-text-secondary, #64748b);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .disease-name {
-  font-size: 2rem;
-  margin-top: var(--space-1);
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 .confidence-badge {
-  background-color: var(--color-critical-light);
-  color: var(--color-critical);
+  background-color: var(--color-critical-light, #fee2e2);
+  color: var(--color-critical, #dc2626);
   padding: var(--space-1) var(--space-3);
   border-radius: 9999px;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.875rem;
+  white-space: nowrap;
+}
+
+.confidence-badge-healthy {
+  background-color: #dcfce7;
+  color: #16a34a;
 }
 
 .symptoms-list ul {
@@ -136,13 +186,15 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  padding-left: 0;
 }
 
 .symptoms-list li {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--space-2);
-  color: var(--color-text-primary);
+  color: var(--color-text-primary, #1e293b);
+  font-size: 0.9375rem;
 }
 
 .confidence-bars {
@@ -165,8 +217,8 @@
 }
 
 .bar-track {
-  height: 8px;
-  background-color: var(--color-border);
+  height: 10px;
+  background-color: var(--color-border, #e2e8f0);
   border-radius: 9999px;
   overflow: hidden;
 }
@@ -174,13 +226,19 @@
 .bar-fill {
   height: 100%;
   border-radius: 9999px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.bg-critical { background-color: var(--color-critical); }
-.bg-primary { background-color: var(--color-primary); }
+.bg-critical { background-color: var(--color-critical, #dc2626); }
+.bg-primary { background-color: var(--color-primary, #16a34a); }
 
 .action-list {
   list-style: none;
+  padding-left: 0;
+}
+
+.action-list li {
+  line-height: 1.5;
 }
 
 .btn-sm {
