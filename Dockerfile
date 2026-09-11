@@ -25,13 +25,17 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-# Install curl for health checks
+# Install system tools
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Install PyTorch CPU wheels (crucial for Render 512MB RAM free tier)
-RUN pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu
+# Upgrade pip and packaging utilities
+RUN pip install --no-cache-dir --upgrade pip setuptools wheel
+
+# Install PyTorch CPU wheels with PyPI fallback for sub-dependencies (numpy, pillow, etc.)
+RUN pip install --no-cache-dir torch torchvision --index-url https://download.pytorch.org/whl/cpu --extra-index-url https://pypi.org/simple
 
 # Install remaining backend requirements
 COPY backend/requirements.txt ./requirements.txt
