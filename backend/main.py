@@ -60,8 +60,23 @@ app.add_middleware(
 )
 
 
+# Frontend dist directory resolution (Docker container or local workspace)
+DIST_DIR = BACKEND_DIR / "dist"
+if not DIST_DIR.exists():
+    DIST_DIR = BACKEND_DIR.parent / "dist"
+
+# Mount compiled assets if available
+if DIST_DIR.exists():
+    assets_dir = DIST_DIR / "assets"
+    if assets_dir.exists():
+        app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
+
+
 @app.get("/")
 def index():
+    # If built React frontend exists, serve the Single Page App
+    if DIST_DIR.exists() and (DIST_DIR / "index.html").is_file():
+        return FileResponse(str(DIST_DIR / "index.html"))
     return {
         "service": "FarmGuardian Plant Health AI",
         "version": "1.0.0",
@@ -71,6 +86,20 @@ def index():
             "classes": "GET /classes"
         }
     }
+
+
+@app.get("/api/info")
+def api_info():
+    return {
+        "service": "FarmGuardian Plant Health AI",
+        "version": "1.0.0",
+        "endpoints": {
+            "predict": "POST /predict",
+            "health": "GET /health",
+            "classes": "GET /classes"
+        }
+    }
+
 
 
 @app.get("/health")
@@ -226,25 +255,20 @@ async def predict(file: UploadFile = File(...)):
 
 
 # ---------------------------------------------------------------------------
-# SPA Static File Serving (for unified Docker deployment)
+# SPA Catch-All Route (for client-side routing like /market-prices, /agribot)
 # ---------------------------------------------------------------------------
-DIST_DIR = BACKEND_DIR / "dist"
-if not DIST_DIR.exists():
-    DIST_DIR = BACKEND_DIR.parent / "dist"
-
 if DIST_DIR.exists():
-    assets_dir = DIST_DIR / "assets"
-    if assets_dir.exists():
-        app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
-
     @app.get("/{full_path:path}", include_in_schema=False)
     async def serve_spa(full_path: str):
-        if full_path.startswith("api/") or full_path in ("docs", "redoc", "openapi.json"):
+        if full_path.startswith("api/") or full_path in (
+            "docs", "redoc", "openapi.json", "health", "predict", "classes"
+        ):
             raise HTTPException(status_code=404, detail="Endpoint not found")
         target_file = DIST_DIR / full_path
         if full_path and target_file.is_file():
             return FileResponse(str(target_file))
         return FileResponse(str(DIST_DIR / "index.html"))
+
 
 
 if __name__ == "__main__":
