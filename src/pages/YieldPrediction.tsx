@@ -18,11 +18,12 @@ export const YieldPrediction = () => {
   const [area, setArea] = useState('5');
   const [soil, setSoil] = useState('Loamy');
   const [stage, setStage] = useState('Vegetative');
+  const [sowingDate, setSowingDate] = useState('2026-04-10');
 
   const handlePredict = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const data = await predictYield({ crop, area, soil, stage });
+    const data = await predictYield({ crop, area, soil, stage, sowing_date: sowingDate });
     setResult(data);
     setLoading(false);
   };
@@ -82,7 +83,7 @@ export const YieldPrediction = () => {
 
             <div className="form-group">
               <label>{isMr ? 'पेरणीची तारीख' : 'Sowing Date'}</label>
-              <input type="date" defaultValue="2026-04-10" />
+              <input type="date" value={sowingDate} onChange={e => setSowingDate(e.target.value)} />
             </div>
 
             <button type="submit" className="btn btn-primary w-full mt-4" disabled={loading}>
@@ -150,27 +151,24 @@ export const YieldPrediction = () => {
                     <h3>{isMr ? 'उत्पादनावर परिणाम करणारे घटक' : 'Factors Affecting Prediction'}</h3>
                   </div>
                   <ul className="factors-list">
-                    <li>
-                      <span className="factor-name">{isMr ? 'माती आरोग्य' : 'Soil condition'}</span>
-                      <span className="badge badge-healthy">{isMr ? 'इष्टतम' : 'Optimal'}</span>
-                    </li>
-                    <li>
-                      <span className="factor-name">{isMr ? 'हवामान स्थिती' : 'Weather'}</span>
-                      <span className="badge badge-water">{isMr ? 'अनुकूल' : 'Favorable'}</span>
-                    </li>
-                    <li>
-                      <span className="factor-name">{isMr ? 'पिकाची वाढीची अवस्था' : 'Crop stage'}</span>
-                      <span className="badge badge-warning">{isMr ? 'योग्य मार्गावर' : 'On Track'}</span>
-                    </li>
-                    <li>
-                      <span className="factor-name">{isMr ? 'मागील वर्षांचे सरासरी उत्पादन' : 'Historical yield'}</span>
-                      <span className="badge badge-healthy">{isMr ? 'चांगले' : 'High'}</span>
-                    </li>
-                    <li>
-                      <span className="factor-name">{isMr ? 'सिंचन व्यवस्थापन' : 'Irrigation'}</span>
-                      <span className="badge badge-warning">{isMr ? 'लक्ष देण्याची गरज' : 'Needs attention'}</span>
-                    </li>
+                    {(result.factors && result.factors.length > 0 ? result.factors : [
+                      { name: isMr ? 'माती आरोग्य' : 'Soil condition', status: isMr ? 'इष्टतम' : 'Optimal', level: 'healthy' },
+                      { name: isMr ? 'हवामान स्थिती' : 'Weather forecast', status: isMr ? 'अनुकूल' : 'Favorable', level: 'water' },
+                      { name: isMr ? 'पिकाची वाढीची अवस्था' : 'Crop stage', status: isMr ? 'योग्य मार्गावर' : 'On Track', level: 'warning' },
+                      { name: isMr ? 'मागील वर्षांचे सरासरी उत्पादन' : 'Historical yield', status: isMr ? 'चांगले' : 'High', level: 'healthy' },
+                      { name: isMr ? 'सिंचन व्यवस्थापन' : 'Irrigation management', status: isMr ? 'लक्ष देण्याची गरज' : 'Needs attention', level: 'warning' }
+                    ]).map((f: any, idx: number) => (
+                      <li key={idx}>
+                        <span className="factor-name">{f.name}</span>
+                        <span className={`badge badge-${f.level || 'healthy'}`}>{f.status}</span>
+                      </li>
+                    ))}
                   </ul>
+                  {result.agronomicInsight && (
+                    <div className="mt-4 p-3 bg-bg-main rounded border border-border text-xs text-text-secondary">
+                      💡 {result.agronomicInsight}
+                    </div>
+                  )}
                 </div>
               </div>
             </>

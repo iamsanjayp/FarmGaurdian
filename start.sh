@@ -5,9 +5,20 @@ echo "=========================================================="
 echo "    AGRICARE (FarmGuardian) + Plant Disease AI System     "
 echo "=========================================================="
 
-VENV_PYTHON="/home/nandha/Downloads/PlantVillage-Dataset-master/venv/bin/python"
-BACKEND_DIR="/home/nandha/Downloads/FarmGuardian/backend"
-FRONTEND_DIR="/home/nandha/Downloads/FarmGuardian"
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+BACKEND_DIR="$SCRIPT_DIR/backend"
+FRONTEND_DIR="$SCRIPT_DIR"
+
+# Detect Python executable
+if [ -f "$BACKEND_DIR/venv/bin/python" ]; then
+    VENV_PYTHON="$BACKEND_DIR/venv/bin/python"
+elif [ -f "$SCRIPT_DIR/venv/bin/python" ]; then
+    VENV_PYTHON="$SCRIPT_DIR/venv/bin/python"
+elif command -v python3 &>/dev/null; then
+    VENV_PYTHON="python3"
+else
+    VENV_PYTHON="python"
+fi
 
 # Check if port 8000 is free
 if lsof -Pi :8000 -sTCP:LISTEN -t >/dev/null ; then

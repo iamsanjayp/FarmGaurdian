@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Header } from '../components/Header';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, Legend } from 'recharts';
-import { Calculator, AlertCircle } from 'lucide-react';
+import { Calculator, AlertCircle, Sparkles } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
+import { getFarmEconomicsData } from '../services/api';
 import './FarmEconomics.css';
 
 export const FarmEconomics = () => {
@@ -21,6 +22,25 @@ export const FarmEconomics = () => {
   const [irrigationCost, setIrrigationCost] = useState(8000);
   const [pesticideCost, setPesticideCost] = useState(10500);
   const [otherCosts, setOtherCosts] = useState(21000);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiAdvice, setAiAdvice] = useState<string | null>(null);
+
+  const handleAiEstimate = async () => {
+    setAiLoading(true);
+    const data = await getFarmEconomicsData(crop, area);
+    if (data) {
+      if (data.seedCost !== undefined) setSeedCost(data.seedCost);
+      if (data.fertilizerCost !== undefined) setFertilizerCost(data.fertilizerCost);
+      if (data.labourCost !== undefined) setLabourCost(data.labourCost);
+      if (data.irrigationCost !== undefined) setIrrigationCost(data.irrigationCost);
+      if (data.pesticideCost !== undefined) setPesticideCost(data.pesticideCost);
+      if (data.otherCosts !== undefined) setOtherCosts(data.otherCosts);
+      if (data.expectedYieldPerAcre !== undefined) setYieldPerAcre(data.expectedYieldPerAcre);
+      if (data.pricePerKg !== undefined) setPricePerKg(data.pricePerKg);
+      setAiAdvice(isMr && data.economicAdviceMr ? data.economicAdviceMr : (data.economicAdvice || null));
+    }
+    setAiLoading(false);
+  };
 
   // Calculations
   const expectedProduction = area * yieldPerAcre;
@@ -49,9 +69,21 @@ export const FarmEconomics = () => {
       <div className="grid grid-cols-3 gap-6 mobile-col-1">
         {/* Input Form */}
         <div className="card economics-form-card col-span-1">
-          <div className="flex items-center gap-2 mb-4">
-            <Calculator className="text-primary" size={20} />
-            <h3>{t('farmEconomics.costCalculator')}</h3>
+          <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <Calculator className="text-primary" size={20} />
+              <h3 className="mb-0">{t('farmEconomics.costCalculator')}</h3>
+            </div>
+            <button 
+              type="button" 
+              onClick={handleAiEstimate} 
+              disabled={aiLoading}
+              className="btn text-xs flex items-center gap-1 py-1 px-3 rounded border border-primary text-primary hover:bg-primary-light transition-all"
+              style={{ fontSize: '0.8rem' }}
+            >
+              <Sparkles size={14} className="text-ai" />
+              {aiLoading ? (isMr ? 'अंदाज घेत आहे...' : 'AI Estimating...') : (isMr ? 'AI खर्च अंदाज' : 'Auto-Estimate with AI')}
+            </button>
           </div>
           
           <div className="form-scroll-area">
@@ -165,7 +197,18 @@ export const FarmEconomics = () => {
                 </ResponsiveContainer>
               </div>
 
-              <div className="flex flex-col justify-center">
+              <div className="flex flex-col justify-center gap-4">
+                {aiAdvice && (
+                  <div className="ai-advice-box flex gap-3 p-4 bg-primary-light rounded-lg border border-primary text-primary-dark">
+                    <Sparkles className="text-ai flex-shrink-0" size={22} />
+                    <div>
+                      <h4 className="text-xs uppercase font-bold tracking-wider mb-1 text-primary">
+                        {isMr ? 'AI आर्थिक शिफारस' : 'AI Economic Advice'}
+                      </h4>
+                      <p className="text-sm mb-0">{aiAdvice}</p>
+                    </div>
+                  </div>
+                )}
                 <div className="disclaimer-box flex gap-3 p-4 bg-bg-main rounded-lg border border-border">
                   <AlertCircle className="text-warning flex-shrink-0" size={24} />
                   <p className="text-sm text-text-secondary mb-0">

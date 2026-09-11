@@ -8,6 +8,7 @@ import './CropPerformance.css';
 
 export const CropPerformance = () => {
   const [data, setData] = useState<any[]>([]);
+  const [perfData, setPerfData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [crop, setCrop] = useState('Rice');
 
@@ -17,8 +18,13 @@ export const CropPerformance = () => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const res = await getCropPerformanceData();
-      setData(res);
+      const res = await getCropPerformanceData(crop);
+      if (res && res.yearlyData) {
+        setData(res.yearlyData);
+        setPerfData(res);
+      } else if (Array.isArray(res)) {
+        setData(res);
+      }
       setLoading(false);
     };
     fetchData();
@@ -56,7 +62,7 @@ export const CropPerformance = () => {
           </div>
           <div className="stat-info">
             <span className="stat-label">{t('cropPerformance.avgGrowth')}</span>
-            <span className="stat-value">+2.47% {isMr ? '/ वर्ष' : '/ yr'}</span>
+            <span className="stat-value">{perfData?.avgGrowth || '+2.47%'} {isMr ? '/ वर्ष' : '/ yr'}</span>
           </div>
         </div>
 
@@ -66,7 +72,9 @@ export const CropPerformance = () => {
           </div>
           <div className="stat-info">
             <span className="stat-label">{isMr ? 'सर्वोत्तम वर्ष' : 'Best Year'}</span>
-            <span className="stat-value">2024 (3,050 {isMr ? 'किलो' : 'kg'})</span>
+            <span className="stat-value">
+              {perfData?.bestYear?.year ? `${perfData.bestYear.year} (${perfData.bestYear.yield.toLocaleString()} ${isMr ? 'किलो' : 'kg'})` : `2024 (3,050 ${isMr ? 'किलो' : 'kg'})`}
+            </span>
           </div>
         </div>
 
@@ -76,7 +84,9 @@ export const CropPerformance = () => {
           </div>
           <div className="stat-info">
             <span className="stat-label">{isMr ? 'कमी उत्पादनाचे वर्ष' : 'Worst Year'}</span>
-            <span className="stat-value">2015 (2,450 {isMr ? 'किलो' : 'kg'})</span>
+            <span className="stat-value">
+              {perfData?.worstYear?.year ? `${perfData.worstYear.year} (${perfData.worstYear.yield.toLocaleString()} ${isMr ? 'किलो' : 'kg'})` : `2015 (2,450 ${isMr ? 'किलो' : 'kg'})`}
+            </span>
           </div>
         </div>
 
@@ -86,7 +96,7 @@ export const CropPerformance = () => {
           </div>
           <div className="stat-info">
             <span className="stat-label">{isMr ? 'डेटा कालावधी' : 'Data Points'}</span>
-            <span className="stat-value">{isMr ? '१० वर्षे' : '10 Years'}</span>
+            <span className="stat-value">{data.length} {isMr ? 'वर्षे' : 'Years'}</span>
           </div>
         </div>
       </div>
@@ -94,7 +104,7 @@ export const CropPerformance = () => {
       <div className="grid grid-cols-3 gap-6 mt-6 mobile-col-1">
         <div className="card col-span-2">
           <div className="flex justify-between items-center mb-4">
-            <h3>{isMr ? '१० वर्षांचा उत्पादन कल (किलो/हेक्टर)' : '10-Year Yield Trend (kg/ha)'}</h3>
+            <h3>{isMr ? `${cropDisplayName} १० वर्षांचा उत्पादन कल (किलो/हेक्टर)` : `${crop} 10-Year Yield Trend (kg/ha)`}</h3>
             <span className="badge badge-water">2015 → 2024</span>
           </div>
           <div className="chart-container" style={{ height: 300 }}>
@@ -126,15 +136,21 @@ export const CropPerformance = () => {
             <div className="forecast-items mt-4">
               <div className="forecast-item">
                 <span className="forecast-label">{isMr ? 'पुढील वर्ष' : 'Next Year'}</span>
-                <span className="forecast-value text-primary">3,125 {isMr ? 'किलो/हेक्टर' : 'kg/ha'}</span>
+                <span className="forecast-value text-primary">
+                  {perfData?.forecast?.nextYear ? `${perfData.forecast.nextYear.toLocaleString()} ${isMr ? 'किलो/हेक्टर' : 'kg/ha'}` : `3,125 ${isMr ? 'किलो/हेक्टर' : 'kg/ha'}`}
+                </span>
               </div>
               <div className="forecast-item">
                 <span className="forecast-label">{isMr ? '३ वर्षांनंतर' : 'In 3 Years'}</span>
-                <span className="forecast-value text-primary">3,282 {isMr ? 'किलो/हेक्टर' : 'kg/ha'}</span>
+                <span className="forecast-value text-primary">
+                  {perfData?.forecast?.in3Years ? `${perfData.forecast.in3Years.toLocaleString()} ${isMr ? 'किलो/हेक्टर' : 'kg/ha'}` : `3,282 ${isMr ? 'किलो/हेक्टर' : 'kg/ha'}`}
+                </span>
               </div>
               <div className="forecast-item">
                 <span className="forecast-label">{isMr ? '५ वर्षांनंतर' : 'In 5 Years'}</span>
-                <span className="forecast-value text-primary">3,446 {isMr ? 'किलो/हेक्टर' : 'kg/ha'}</span>
+                <span className="forecast-value text-primary">
+                  {perfData?.forecast?.in5Years ? `${perfData.forecast.in5Years.toLocaleString()} ${isMr ? 'किलो/हेक्टर' : 'kg/ha'}` : `3,446 ${isMr ? 'किलो/हेक्टर' : 'kg/ha'}`}
+                </span>
               </div>
             </div>
           </div>
@@ -145,9 +161,11 @@ export const CropPerformance = () => {
               <h3>{isMr ? 'AI कृषी सल्ला' : 'AI Recommendation'}</h3>
             </div>
             <p className="mb-0 text-ai-dark">
-              {isMr 
-                ? `"${cropDisplayName} पिकात मागील काही वर्षांत स्थिर वाढ दिसून आली असून आगामी हंगामात लागवडीसाठी हे अनुकूल आहे."`
-                : `"${crop} shows stable historical growth and is recommended for the next season. The expected yield trend continues upward."`}
+              {(isMr && perfData?.aiRecommendationMr) 
+                ? `"${perfData.aiRecommendationMr}"`
+                : (perfData?.aiRecommendation 
+                    ? `"${perfData.aiRecommendation}"` 
+                    : `"${crop} shows stable historical growth and is recommended for the next season. The expected yield trend continues upward."`)}
             </p>
           </div>
         </div>
@@ -155,4 +173,5 @@ export const CropPerformance = () => {
     </div>
   );
 };
+
 

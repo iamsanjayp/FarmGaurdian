@@ -1,0 +1,10 @@
+node_modules
+.git
+.github
+.env
+.venv
+__pycache__
+*.pyc
+dist
+crop-health-ai
+.oxlintrc.json

@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { Header } from '../components/Header';
-import { getSmartAlerts, getCropProgress, getWeatherData } from '../services/api';
+import { getSmartGuidanceReport, getWeatherData, getSmartAlerts, getCropProgress } from '../services/api';
 import { Lightbulb, AlertTriangle, CloudRain, ShieldAlert, Sprout, Check } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 import './SmartGuidance.css';
 
 export const SmartGuidance = () => {
+  const [report, setReport] = useState<any>(null);
   const [alerts, setAlerts] = useState<any[]>([]);
   const [progress, setProgress] = useState<any[]>([]);
   const [weather, setWeather] = useState<any>(null);
@@ -21,13 +22,23 @@ export const SmartGuidance = () => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      const [aData, pData, wData] = await Promise.all([
-        getSmartAlerts(),
-        getCropProgress(),
+      const [guidanceData, wData] = await Promise.all([
+        getSmartGuidanceReport(crop, sowingDate),
         getWeatherData()
       ]);
-      setAlerts(aData);
-      setProgress(pData);
+
+      if (guidanceData) {
+        setReport(guidanceData);
+        if (guidanceData.alerts) setAlerts(guidanceData.alerts);
+        if (guidanceData.lifecycleStages) setProgress(guidanceData.lifecycleStages);
+      } else {
+        const [aData, pData] = await Promise.all([
+          getSmartAlerts(crop, sowingDate),
+          getCropProgress(crop, sowingDate)
+        ]);
+        setAlerts(aData);
+        setProgress(pData);
+      }
       setWeather(wData);
       setLoading(false);
     };
@@ -47,6 +58,9 @@ export const SmartGuidance = () => {
 
   const getLocalizedAlert = (alert: any) => {
     if (!isMr) return { title: alert.title, message: alert.message };
+    if (alert.titleMr && alert.messageMr) {
+      return { title: alert.titleMr, message: alert.messageMr };
+    }
     switch (alert.id) {
       case 1:
         return {
@@ -85,7 +99,26 @@ export const SmartGuidance = () => {
     }
   };
 
-  const cropTitle = isMr ? (crop === 'Rice' ? t('crops.rice') : t('crops.wheat')) : crop;
+  const cropTitle = isMr 
+    ? (crop === 'Rice' ? t('crops.rice') : crop === 'Wheat' ? t('crops.wheat') : crop === 'Cotton' ? t('crops.cotton') : t('crops.sugarcane'))
+    : crop;
+
+  const currentStageIndex = progress.findIndex(s => s.current);
+  const activePercent = currentStageIndex >= 0 ? Math.round((currentStageIndex / Math.max(progress.length - 1, 1)) * 100) : 40;
+
+  const checklistItems = report?.checklist && report.checklist.length > 0
+    ? report.checklist.map((item: any) => (isMr && item.mr ? item.mr : (item.en || item)))
+    : [
+        isMr ? 'पिकात योग्य पाणी पातळी (२-३ सेमी) राखा' : 'Maintain proper water level (2-3 cm)',
+        isMr ? 'जमिनीतील ओलावा नियमितपणे तपासा' : 'Monitor soil moisture regularly',
+        isMr ? 'शिफारशीत नायट्रोजन खतांचा हलका हप्ता द्या' : 'Apply recommended nitrogen top-dressing',
+        isMr ? 'खोडकिडीच्या प्राथमिक लक्षणांवर नजर ठेवा' : 'Check for early pest activity (stem borer)',
+        isMr ? 'तण नियंत्रण वेळेवर करून पिकाची वाढ सुलभ करा' : 'Weed management to reduce competition'
+      ];
+
+  const todaysRecommendationText = isMr
+    ? (report?.todaysRecommendationMr || '"आज २० मिनिटे हलके पाणी द्या आणि नायट्रोजन खत पातळीवर लक्ष ठेवा. उद्या पाऊस पडण्याची शक्यता ८५% आहे."')
+    : (report?.todaysRecommendation ? `"${report.todaysRecommendation}"` : `"Irrigate today for 20 minutes and monitor nitrogen levels. ${weather?.recommendation || ''}"`);
 
   return (
     <div className="smart-guidance-page">
@@ -100,6 +133,8 @@ export const SmartGuidance = () => {
           <select value={crop} onChange={e => setCrop(e.target.value)} style={{ width: '150px' }}>
             <option value="Rice">{isMr ? t('crops.rice') : 'Rice'}</option>
             <option value="Wheat">{isMr ? t('crops.wheat') : 'Wheat'}</option>
+            <option value="Cotton">{isMr ? t('crops.cotton') : 'Cotton'}</option>
+            <option value="Sugarcane">{isMr ? t('crops.sugarcane') : 'Sugarcane'}</option>
           </select>
         </div>
         <div className="form-group inline-form-group mb-0">
@@ -118,9 +153,7 @@ export const SmartGuidance = () => {
               <h3 className="mb-0">{t('dashboard.todaysRecommendation')}</h3>
             </div>
             <p className="recommendation-text mb-0">
-              {isMr 
-                ? '"आज २० मिनिटे हलके पाणी द्या आणि नायट्रोजन खत पातळीवर लक्ष ठेवा. उद्या पाऊस पडण्याची शक्यता ८५% आहे."'
-                : `"Irrigate today for 20 minutes and monitor nitrogen levels. ${weather?.recommendation}"`}
+              {todaysRecommendationText}
             </p>
           </div>
 
@@ -157,7 +190,7 @@ export const SmartGuidance = () => {
               </div>
             ))}
             <div className="step-line"></div>
-            <div className="step-line-active" style={{ width: '40%' }}></div>
+            <div className="step-line-active" style={{ width: `${activePercent}%` }}></div>
           </div>
 
           <div className="current-stage-details mt-10 p-6 bg-bg-main rounded-lg border border-border">
@@ -166,11 +199,15 @@ export const SmartGuidance = () => {
                 <span className="text-sm text-text-secondary uppercase font-bold tracking-wide">
                   {isMr ? 'सध्याची अवस्था' : 'Current Stage'}
                 </span>
-                <h2 className="text-primary-dark mt-1">{isMr ? t('stages.vegetative') : 'Vegetative'}</h2>
+                <h2 className="text-primary-dark mt-1">
+                  {report?.currentStage ? getStageTitle(report.currentStage) : (isMr ? t('stages.vegetative') : 'Vegetative')}
+                </h2>
               </div>
               <div className="text-right">
                 <span className="text-sm text-text-secondary block">{isMr ? 'कालावधी' : 'Timing'}</span>
-                <span className="font-semibold text-lg">{isMr ? 'दिवस १५–४५' : 'Day 15–45'}</span>
+                <span className="font-semibold text-lg">
+                  {isMr ? (report?.stageTimingMr || 'दिवस १५–४५') : (report?.stageTiming || 'Day 15–45')}
+                </span>
               </div>
             </div>
 
@@ -179,26 +216,12 @@ export const SmartGuidance = () => {
                 <Sprout size={18} className="text-primary" /> {isMr ? 'आजच्या शिफारस केलेल्या कृती:' : 'Recommended Actions:'}
               </h4>
               <ul className="action-checklist">
-                <li>
-                  <div className="checklist-box"></div>
-                  <span>{isMr ? 'पिकात योग्य पाणी पातळी (२-३ सेमी) राखा' : 'Maintain proper water level (2-3 cm)'}</span>
-                </li>
-                <li>
-                  <div className="checklist-box"></div>
-                  <span>{isMr ? 'जमिनीतील ओलावा नियमितपणे तपासा' : 'Monitor soil moisture regularly'}</span>
-                </li>
-                <li>
-                  <div className="checklist-box"></div>
-                  <span>{isMr ? 'शिफारशीत नायट्रोजन खतांचा हलका हप्ता द्या' : 'Apply recommended nitrogen top-dressing'}</span>
-                </li>
-                <li>
-                  <div className="checklist-box"></div>
-                  <span>{isMr ? 'खोडकिडीच्या प्राथमिक लक्षणांवर नजर ठेवा' : 'Check for early pest activity (stem borer)'}</span>
-                </li>
-                <li>
-                  <div className="checklist-box"></div>
-                  <span>{isMr ? 'तण नियंत्रण वेळेवर करून पिकाची वाढ सुलभ करा' : 'Weed management to reduce competition'}</span>
-                </li>
+                {checklistItems.map((itemText: string, idx: number) => (
+                  <li key={idx}>
+                    <div className="checklist-box"></div>
+                    <span>{itemText}</span>
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
@@ -209,4 +232,5 @@ export const SmartGuidance = () => {
     </div>
   );
 };
+
 

@@ -24,10 +24,10 @@ Or from the repository root:
 ./start.sh
 ```
 
-## Environment Variables
+## Environment Variables (Optional)
 
-- `MODEL_PATH`: Path to trained PyTorch `.pth` checkpoint (defaults to `../PlantVillage-Dataset-master/checkpoints/best_efficientnet_b0.pth`)
-- `CLASS_MAPPING_PATH`: Path to `class_mapping.json` (defaults to `../PlantVillage-Dataset-master/splits/class_mapping.json`)
+- `MODEL_PATH`: Path to trained PyTorch `.pth` checkpoint (defaults to `checkpoints/best_efficientnet_b0.pth`)
+- `CLASS_MAPPING_PATH`: Path to `class_mapping.json` (defaults to `class_mapping.json`)
 
 ## Endpoints
 

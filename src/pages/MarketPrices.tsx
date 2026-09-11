@@ -125,11 +125,11 @@ export const MarketPrices = () => {
               <div className="market-meta mt-6">
                 <div className="meta-item">
                   <MapPin size={14} className="text-text-secondary flex-shrink-0" />
-                  <span>{isMr ? `प्रमुख कृषी बाजार: ${stateFilter} APMC` : `Best Market: ${stateFilter} APMC`}</span>
+                  <span>{isMr ? `प्रमुख कृषी बाजार: ${item.bestMarket || `${stateFilter} APMC`}` : `Market: ${item.bestMarket || `${stateFilter} APMC`}`}</span>
                 </div>
                 <div className="meta-item mt-1">
                   <Clock size={14} className="text-text-secondary flex-shrink-0" />
-                  <span>{isMr ? 'शेवटचे अपडेट: आज, ०९:३० AM' : 'Last updated: Today, 09:30 AM'}</span>
+                  <span>{isMr ? 'लाईव्ह भाव अपडेट: आज' : 'Live Mandi Price: Today'}</span>
                 </div>
               </div>
             </div>

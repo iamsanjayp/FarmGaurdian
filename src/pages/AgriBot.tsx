@@ -58,11 +58,16 @@ export const AgriBot = () => {
     if (!text.trim()) return;
 
     const userMessage: Message = { id: nextIdRef.current++, text, sender: 'user' };
-    setCustomMessages(prev => (prev.length === 0 ? [{ id: 0, text: defaultBotText, sender: 'bot' }, userMessage] : [...prev, userMessage]));
+    const updatedHistory = customMessages.length === 0 
+      ? [{ id: 0, text: defaultBotText, sender: 'bot' as const }, userMessage] 
+      : [...customMessages, userMessage];
+
+    setCustomMessages(updatedHistory);
     setInput('');
     setIsLoading(true);
 
-    const botResponseText = await askAgriBot(text, language);
+    const historyForApi = updatedHistory.map(m => ({ sender: m.sender, text: m.text }));
+    const botResponseText = await askAgriBot(text, historyForApi, language);
     
     const botMessage: Message = { id: nextIdRef.current++, text: botResponseText, sender: 'bot' };
     setCustomMessages(prev => [...prev, botMessage]);
@@ -107,7 +112,7 @@ export const AgriBot = () => {
                      <Sparkles size={14} /> {isMr ? 'कृषी AI सहाय्यक' : 'AI Assistant'}
                    </div>
                 )}
-                <p>{msg.text}</p>
+                <p style={{ whiteSpace: 'pre-line' }}>{msg.text}</p>
               </div>
             </div>
           ))}
